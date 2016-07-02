@@ -6,6 +6,7 @@ uint8_t _stored_key[16*11] = {0}; // all round keys
 uint8_t mask_state[16];
 uint8_t mask_key[16];
 uint8_t md, mdinv, mhp, mlp;
+uint8_t rand4b_1[16],rand4b_2[16],rand4b_3[16],rand4b_4[16];
 
 /*
 // Debug stuff...
@@ -292,6 +293,11 @@ void ark_sb_wise07(uint8_t *state, uint8_t *_stored_key, uint8_t *mask_state, ui
 	for(i=0;i<16;i++)
 	{
 		state[i] = (state[i]^_stored_key[i])^mask_key[i];
+		// multi-masking
+		md = rand4b_1[i];
+		mdinv = rand4b_2[i];
+		mhp = rand4b_3[i];
+		mlp = rand4b_4[i];
 		inv_wisa07_asm(&state[i],&mask_state[i]);
 	}
 	// affine transformation
@@ -436,15 +442,19 @@ void aes_indep_key(uint8_t * key){
     for(uint8_t i=0; i<10;i++){
     	computeKey(_stored_key, i);
     }
-		// get random
+	// get random
+	uint8_t tmp;
 	for (uint8_t i = 0; i < 16; i++){
 		mask_state[i] = random() & 0xFF;
+		tmp = random() & 0xFF;
+		rand4b_1[i] = tmp&0x0F;
+		rand4b_2[i] = tmp>>4;
+		tmp = random() & 0xFF;
+		rand4b_3[i] = tmp&0x0F;
+		rand4b_4[i] = tmp>>4;
 	}
 	
-	md = random()&0x0F;
-	mdinv = random()&0x0F;
-	mhp = random()&0x0F;
-	mlp = random()&0x0F;
+	
 
 	// mask round key with mask_key
 	for (uint32_t i = 0; i < 11; i++){
@@ -457,20 +467,6 @@ void aes_indep_key(uint8_t * key){
 
 
 void aes_indep_enc(uint8_t * pt){
-	
-	/*uint8_t a = 0xA5;
-	uint8_t m = 0xBC;
-	uint8_t x=a^m;
-	uint8_t res=sbox[a];
-	inv_wisa07(&x,&m);
-	x = aff_trans(x)^0x63;
-	m = aff_trans(m);
-	uint8_t t = x^m;
-	if(res != t)
-	{
-		printf("tt");
-	}*/
-	
 	
 	for(uint8_t i=0; i < 16; i++){
 		pt[i] ^= mask_state[i];
