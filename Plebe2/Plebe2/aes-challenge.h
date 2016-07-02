@@ -25,5 +25,8 @@ void aes_indep_init(void);
 void aes_indep_key(uint8_t * key);
 void aes_indep_enc(uint8_t * pt);
 
+uint8_t algo2(uint8_t,uint8_t,uint8_t);
+
+void inv_wisa07_asm(uint8_t*,uint8_t*);
 
 #endif
