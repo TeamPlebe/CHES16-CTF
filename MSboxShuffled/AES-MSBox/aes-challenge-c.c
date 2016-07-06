@@ -236,8 +236,7 @@ void aes_indep_enc(uint8_t * pt){
 	
 	// precompute masked sbox
 	for (uint16_t i = 0; i < 256; i++){
-		//uint16_t idx = ((i+ez_shuffle1)&0xFF) ^ ez_shuffle2;
-		uint16_t idx = i;
+		uint16_t idx = ((i+ez_shuffle1)&0xFF) ^ ez_shuffle2;
 		masked_sbox[idx] = sbox[idx ^ mask_in] ^ mask_out;
 	}
 	
